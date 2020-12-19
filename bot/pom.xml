@@ -15,6 +15,10 @@
             <name>jcenter-bintray</name>
             <url>https://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
     
     <dependencies>
@@ -22,6 +26,11 @@
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>4.2.0_222</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MrGraversen</groupId>
+            <artifactId>minecraft-rcon</artifactId>
+            <version>0.0.3</version>
         </dependency>
     </dependencies>
 
