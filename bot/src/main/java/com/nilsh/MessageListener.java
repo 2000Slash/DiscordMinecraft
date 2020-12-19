@@ -48,6 +48,8 @@ public class MessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if(event.getAuthor().isBot())
+            return;
         String receivedMessage = event.getMessage().getContentRaw().toLowerCase();
 
         switch (receivedMessage) {
@@ -82,6 +84,9 @@ public class MessageListener extends ListenerAdapter {
                 } else {
                     event.getChannel().sendMessage("Server läuft nicht.").queue();
                 }
+                break;
+            case "-help":
+                event.getChannel().sendMessage("Hallo " + event.getMessage().getAuthor().getName() + ". Du kannst den Minecraft server mit dem Befehl -start starten und mit -list sehen wer grad auf dem Server ist. Außerdem kannst du -status benutzen um zu gucken ob der Server grade an ist.").queue();
                 break;
             case "carsten?":
                 event.getChannel().sendMessage("Fertig").queue();
