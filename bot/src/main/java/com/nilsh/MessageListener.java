@@ -13,22 +13,31 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  */
 public class MessageListener extends ListenerAdapter {
     private static final String token = "token";
+
     public static void main(String[] args) throws LoginException {
         JDABuilder.createDefault(token).addEventListeners(new MessageListener()).build();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getMessage().getContentRaw().equalsIgnoreCase("-start")) {
-            event.getChannel().sendMessage("Starting Server...").queue();
-            try {
-                Runtime.getRuntime().exec("start.bat");
-            } catch (IOException e) {
-                event.getChannel().sendMessage("Server konnte nicht gestartet werden: " + e.getMessage()).queue();
-            }
+        String receivedMessage = event.getMessage().getContentRaw().toLowerCase();
 
-        } else {
-            System.out.println(event.getMessage().getContentRaw());
+        switch (receivedMessage) {
+            case "-start":
+                try {
+                    Runtime.getRuntime().exec("start.bat");
+                    event.getChannel().sendMessage("Server startet...").queue();
+                } catch (IOException e) {
+                    event.getChannel().sendMessage("Server konnte nicht gestartet werden --- " + e.getMessage()).queue();
+                }
+                break;
+            case "-restart":
+                System.out.println("Restartet");
+                event.getChannel().sendMessage("Server restartet...").queue();
+                break;
+            default:
+                System.out.println(receivedMessage);
+                break;
         }
     }
 }
