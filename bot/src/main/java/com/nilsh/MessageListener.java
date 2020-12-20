@@ -1,6 +1,5 @@
 package com.nilsh;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Timer;
@@ -8,21 +7,16 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import javax.security.auth.login.LoginException;
-import net.dv8tion.jda.api.JDA;
-import io.graversen.minecraft.rcon.Defaults;
-import io.graversen.minecraft.rcon.MinecraftRcon;
-import io.graversen.minecraft.rcon.commands.PlayerListCommand;
-import io.graversen.minecraft.rcon.commands.base.ICommand;
-import io.graversen.minecraft.rcon.query.playerlist.PlayerList;
-import io.graversen.minecraft.rcon.query.playerlist.PlayerListMapper;
-import io.graversen.minecraft.rcon.service.ConnectOptions;
-import io.graversen.minecraft.rcon.service.MinecraftRconService;
-import io.graversen.minecraft.rcon.service.RconDetails;
-
-import java.time.LocalTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.graversen.minecraft.rcon.Defaults;
+import io.graversen.minecraft.rcon.MinecraftRcon;
+import io.graversen.minecraft.rcon.service.ConnectOptions;
+import io.graversen.minecraft.rcon.service.MinecraftRconService;
+import io.graversen.minecraft.rcon.service.RconDetails;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -43,11 +37,19 @@ public class MessageListener extends ListenerAdapter {
 
     public static void main(String[] args) throws LoginException {
         jda = JDABuilder.createDefault(TOKEN).addEventListeners(new MessageListener()).build();
+        Timer richPresenceTimer = new Timer();
+        richPresenceTimer.schedule(new TimerTask(){
+            @Override
+            public void run() {
+                richPresenceUpdate();
+            }
+        }, 0,60000);
         reconnect();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        
         if(event.getAuthor().isBot())
             return;
         String receivedMessage = event.getMessage().getContentRaw().toLowerCase();
@@ -58,7 +60,7 @@ public class MessageListener extends ListenerAdapter {
                     Runtime.getRuntime().exec("start.bat");
                     event.getChannel().sendMessage("Server startet...").queue();
                 } catch (IOException e) {
-                    event.getChannel().sendMessage("Server konnte nicht gestartet werden --- " + e.getMessage())
+                    event.getChannel().sendMessage("Server konnte nicht gestartet werden!" + e.getMessage())
                             .queue();
                 }
                 break;
@@ -132,11 +134,16 @@ public class MessageListener extends ListenerAdapter {
         minecraftServer = new MinecraftRconService(new RconDetails(RCON_IP, RCON_PORT, RCON_PASSWORD),
             new ConnectOptions(1, Duration.ofSeconds(3), Defaults.CONNECTION_WATCHER_INTERVAL));
         minecraftServer.connectBlocking(Duration.ofSeconds(20));
-        if(minecraftServer.isConnected()) {
-            jda.getPresence().setActivity(Activity.playing("Server läuft"));
-        } else {
-            jda.getPresence().setActivity(Activity.playing("Server läuft nicht"));
-        }
         return minecraftServer.isConnected();
+    }
+
+
+    private static void richPresenceUpdate() {
+        if(!getStatus()) {
+            jda.getPresence().setActivity(Activity.playing("Server is not running!"));
+        }
+        else {
+            jda.getPresence().setActivity(Activity.playing("Server is running"));
+        }
     }
 }
